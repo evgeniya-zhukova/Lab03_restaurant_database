@@ -1,66 +1,59 @@
 const mongoose = require('mongoose');
 
 const RestaurantSchema = new mongoose.Schema({
-  firstname: {
-    type: String,
-    required: [true, 'Please enter first name'],
-    trim: true,
-    lowercase: true
-  },
-  lastname: {
-    type: String,
+  address: {
+    building: {
+    type: Number,
     required: true,
-    trim: true,
-    lowercase: true
-  },
-  email: {
-    type: String,
-    required: true,
-    //index: true, //Optional if unique is defined
-    unique: [true, "Duplicate Email Not allowed"],
-    trim: true,
-    uppercase: true,
-    //minlength:10,
-    //maxlength: 50,
-    //Custom validation
-    validate: function(value) {
-      var emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-      return emailRegex.test(value);
+    default: 0,
+    validate(value) {
+      if (value < 0){
+         throw new Error("Negative building number is not possible.");
+      }
     }
   },
-  gender: {
+  street: {
     type: String,
     required: true,
-    enum: ['male', 'female', 'other'],
     trim: true,
     lowercase: true
   },
+  zipcode: {
+    type: Number,
+    required: true,
+    default: 0,
+    validate(value) {
+      if (value < 0){
+         throw new Error("Negative zipcode is not possible.");
+      }
+    }
+  }},
   city:{
     type: String,
     required: true,
     trim: true,
     lowercase: true
   },
-  designation: {
+  cuisine: {
     type: String,
     required: true,
     trim: true,
     lowercase: true
   },
-  salary: {
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true
+  },
+  restaurant_id: { 
     type: Number,
-    default: 0.0,
-    //min: [1000, 'Too less Salary'],
-    //max: 12000,
+    default: 0,
     validate(value) {
-      if (value < 0.0){
-         throw new Error("Negative Salary aren't real.");
+      if (value < 0){
+         throw new Error("Negative ID is not possible.");
       }
     }
-  },
-  created: { 
-    type: Date,
-    default: Date.now
   },
 });
 

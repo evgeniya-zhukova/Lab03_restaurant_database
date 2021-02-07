@@ -1,54 +1,54 @@
 const express = require('express');
-const employeeModel = require('../models/Employee');
+const restaurantModel = require('../models/Restaurant');
 const app = express();
 
 //Read ALL
-//http://localhost:8081/employees
-app.get('/employees', async (req, res) => {
-  //const employees = await employeeModel.find({});
+//http://localhost:8081/restaurants
+app.get('/restaurants', async (req, res) => {
+  //const restaurants = await restaurantModel.find({});
   //Sorting
   //use "asc", "desc", "ascending", "descending", 1, or -1
-  //const employees = await employeeModel.find({}).sort({'firstname': -1});
+  //const restaurants = await restaurantModel.find({}).sort({'firstname': -1});
   
   //Select Specific Column
-  const employees = await employeeModel.find({})
-              .select("firstname lastname salary")
-              .sort({'salary' : 'desc'});  
+  const restaurants = await restaurantModel.find({})
+              //.select("firstname lastname salary")
+              //.sort({'salary' : 'desc'});  
   
   try {
-    res.status(200).send(employees);
+    res.status(200).send(restaurants);
   } catch (err) {
     res.status(500).send(err);
   }
 });
-
+/*
 //Read By ID
-//http://localhost:8081/employee?id=60174acfcde1ab2e78a3a9b0
-app.get('/employee', async (req, res) => {
-  //const employees = await employeeModel.find({_id: req.query.id});
-  //const employees = await employeeModel.findById(req.query.id);
-  const employees = await employeeModel.find({_id: req.query.id}).select("firstname lastname salary");
+//http://localhost:8081/restaurant?id=60174acfcde1ab2e78a3a9b0
+app.get('/restaurant', async (req, res) => {
+  //const restaurants = await restaurantModel.find({_id: req.query.id});
+  //const restaurants = await restaurantModel.findById(req.query.id);
+  const restaurants = await restaurantModel.find({_id: req.query.id}).select("firstname lastname salary");
 
   try {
-    res.send(employees);
+    res.send(restaurants);
   } catch (err) {
     res.status(500).send(err);
   }
 });
 
 //Search By First Name - PATH Parameter
-//http://localhost:8081/employees/firstname/pritesh
-app.get('/employees/firstname/:name', async (req, res) => {
+//http://localhost:8081/restaurants/firstname/pritesh
+app.get('/restaurants/firstname/:name', async (req, res) => {
   const name = req.params.name
-  const employees = await employeeModel.find({firstname : name});
-  //const employees = await employeeModel.getEmployeeByFirstName(name)
+  const restaurants = await restaurantModel.find({firstname : name});
+  //const restaurants = await restaurantModel.getRestaurantByFirstName(name)
   
   //Using Virtual Field Name
-  //console.log(employees[0].fullname)
+  //console.log(restaurants[0].fullname)
   
   try {
-    if(employees.length != 0){
-      res.send(employees);
+    if(restaurants.length != 0){
+      res.send(restaurants);
     }else{
       res.send(JSON.stringify({status:false, message: "No data found"}))
     }
@@ -58,8 +58,8 @@ app.get('/employees/firstname/:name', async (req, res) => {
 });
 
 //Search By First Name OR Last Name
-//http://localhost:8081/employees/search?firstname=pritesh&lastname=patel
-app.get('/employees/search', async (req, res) => {
+//http://localhost:8081/restaurants/search?firstname=pritesh&lastname=patel
+app.get('/restaurants/search', async (req, res) => {
   //console.log(req.query)
   if(Object.keys(req.query).length != 2){
     res.send(JSON.stringify({status:false, message: "Insufficient query parameter"}))
@@ -67,14 +67,14 @@ app.get('/employees/search', async (req, res) => {
     const fname = req.query.firstname
     const lname = req.query.lastname
     //{ $or: [{ name: "Rambo" }, { breed: "Pugg" }, { age: 2 }] },
-    //const employees = await employeeModel.find({ $and: [{firstname : fname}, {lastname : lname}]});
-    const employees = await employeeModel.find({ $or: [{firstname : fname}, {lastname : lname}]});
+    //const restaurants = await restaurantModel.find({ $and: [{firstname : fname}, {lastname : lname}]});
+    const restaurants = await restaurantModel.find({ $or: [{firstname : fname}, {lastname : lname}]});
     ///Use below query for AND condition
-    //const employees = await employeeModel.find({firstname : fname, lastname : lname});
+    //const restaurants = await restaurantModel.find({firstname : fname, lastname : lname});
 
     try {
-      if(employees.length != 0){
-        res.send(employees);
+      if(restaurants.length != 0){
+        res.send(restaurants);
       }else{
         res.send(JSON.stringify({status:false, message: "No data found"}))
       }
@@ -86,22 +86,22 @@ app.get('/employees/search', async (req, res) => {
 
 
 //Search By salary > 1000
-//http://localhost:8081/employees/salary?value=1000
-app.get('/employees/salary', async (req, res) => {
+//http://localhost:8081/restaurants/salary?value=1000
+app.get('/restaurants/salary', async (req, res) => {
   //console.log(req.query)
   if(Object.keys(req.query).length != 1){
     res.send(JSON.stringify({status:false, message: "Insufficient query parameter"}))
   }else{
     const salary = req.query.value
   
-    //const employees = await employeeModel.find({salary : {$gte : salary}});
-    const employees = await employeeModel.find({}).where("salary").gte(salary);
+    //const restaurants = await restaurantModel.find({salary : {$gte : salary}});
+    const restaurants = await restaurantModel.find({}).where("salary").gte(salary);
     // <= 10000
-    //const employees = await employeeModel.find({salary : {$lte : salary }});
+    //const restaurants = await restaurantModel.find({salary : {$lte : salary }});
     
     try {
-      if(employees.length != 0){
-        res.send(employees);
+      if(restaurants.length != 0){
+        res.send(restaurants);
       }else{
         res.send(JSON.stringify({status:false, message: "No data found"}))
       }
@@ -112,10 +112,10 @@ app.get('/employees/salary', async (req, res) => {
 });
 
 //Some more test queries
-//http://localhost:8081/employees/test
-app.get('/employees/test', async (req, res) => {
+//http://localhost:8081/restaurants/test
+app.get('/restaurants/test', async (req, res) => {
   try {
-    const employees = employeeModel.
+    const restaurants = restaurantModel.
                         find({})
                         .where('lastname').equals('patel')
                         .where('salary').gte(1000.00).lte(10000.00)
@@ -148,14 +148,14 @@ app.get('/employees/test', async (req, res) => {
       "designation":"Senior Software Engineer",
       "salary": 10000.50
     }
-*/
-//http://localhost:8081/employee
-app.post('/employee', async (req, res) => {
+*//*
+//http://localhost:8081/restaurant
+app.post('/restaurant', async (req, res) => {
   
-    const employee = new employeeModel(req.body);
+    const restaurant = new restaurantModel(req.body);
     
     try {
-      await employee.save((err) => {
+      await restaurant.save((err) => {
         if(err){
           //Custome error handling
           //console.log(err.errors['firstname'].message)
@@ -164,7 +164,7 @@ app.post('/employee', async (req, res) => {
           //console.log(err.errors['salary'].message)
           res.send(err)
         }else{
-          res.send(employee);
+          res.send(restaurant);
         }
       });
     } catch (err) {
@@ -173,24 +173,24 @@ app.post('/employee', async (req, res) => {
   });
 
 //Update Record
-//http://localhost:8081/employee/60174acfcde1ab2e78a3a9b0
-app.patch('/employee/:id', async (req, res) => {
+//http://localhost:8081/restaurant/60174acfcde1ab2e78a3a9b0
+app.patch('/restaurant/:id', async (req, res) => {
   try {
-    const employee =  await employeeModel.findOneAndUpdate({ _id: req.params.id}, req.body, {new: true})
-    //const employee =  await employeeModel.findByIdAndUpdate(req.params.id, req.body, {new: true})
-    res.send(employee)
+    const restaurant =  await restaurantModel.findOneAndUpdate({ _id: req.params.id}, req.body, {new: true})
+    //const restaurant =  await restaurantModel.findByIdAndUpdate(req.params.id, req.body, {new: true})
+    res.send(restaurant)
   } catch (err) {
     res.status(500).send(err)
   }
 })
 
 //Delete Record by ID
-//http://localhost:8081/employee/5d1f6c3e4b0b88fb1d257237
-app.delete('/employee/:id', async (req, res) => {
+//http://localhost:8081/restaurant/5d1f6c3e4b0b88fb1d257237
+app.delete('/restaurant/:id', async (req, res) => {
     try {
-      const employee = await employeeModel.findByIdAndDelete(req.params.id)
+      const restaurant = await restaurantModel.findByIdAndDelete(req.params.id)
 
-      if (!employee) 
+      if (!restaurant) 
       {
         res.status(404).send(JSON.stringify({status: false, message:"No item found"}))
       }else{
@@ -202,16 +202,16 @@ app.delete('/employee/:id', async (req, res) => {
   })
 
   //Delete Record using findOneAndDelete()
-//http://localhost:8081/employee/delete?emailid=5d1f6c3e4b0b88fb1d257237
-app.get('/employee/delete', async (req, res) => {
+//http://localhost:8081/restaurant/delete?emailid=5d1f6c3e4b0b88fb1d257237
+app.get('/restaurant/delete', async (req, res) => {
   try {
-    const employee = await employeeModel.findOneAndDelete({email: req.query.emailid})
+    const restaurant = await restaurantModel.findOneAndDelete({email: req.query.emailid})
 
-    if (!employee) 
+    if (!restaurant) 
     {
       res.status(404).send(JSON.stringify({status: false, message:"No item found"}))
     }else{
-      //employee.remove() //Update for Mongoose v5.5.3 - remove() is now deprecated
+      //restaurant.remove() //Update for Mongoose v5.5.3 - remove() is now deprecated
       res.status(200).send(JSON.stringify({status: true, message:"Record Deleted Successfully"}))
     }
   } catch (err) {
@@ -222,7 +222,7 @@ module.exports = app
 
 //Insert Multiple Records
 /*
-employeeModel.create(
+restaurantModel.create(
   [{"firstname":"Keriann","lastname":"Qualtro","email":"kqualtro3@mediafire.com","gender":"Female","city":"Ulricehamn","designation":"Nurse Practicioner","salary":"9288.95"},
   {"firstname":"Bette","lastname":"Elston","email":"belston4@altervista.org","gender":"Female","city":"Xinhang","designation":"Staff Accountant III","salary":"3086.99"},
   {"firstname":"Editha","lastname":"Feasby","email":"efeasby5@ovh.net","gender":"Female","city":"San Francisco","designation":"Mechanical Systems Engineer","salary":"1563.63"},

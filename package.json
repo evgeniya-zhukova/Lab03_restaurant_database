@@ -1,0 +1,24 @@
+{
+  "name": "lab03_restaurant_database",
+  "version": "1.0.0",
+  "description": "Full Stack II Lab 03",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evgeniya-zhukova/Lab03_restaurant_database.git"
+  },
+  "author": "Evgeniya Zhukova",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/evgeniya-zhukova/Lab03_restaurant_database/issues"
+  },
+  "homepage": "https://github.com/evgeniya-zhukova/Lab03_restaurant_database#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.11.15",
+    "nodemon": "^2.0.7"
+  }
+}

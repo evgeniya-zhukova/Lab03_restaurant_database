@@ -12,39 +12,26 @@ app.get('/restaurants', async (req, res) => {
   
   //Select Specific Column
   const restaurants = await restaurantModel.find({})
-              //.select("firstname lastname salary")
-              //.sort({'salary' : 'desc'});  
-  
+              //.select("cuisine")
+              //.sort({'salary' : 'desc'});    
   try {
     res.status(200).send(restaurants);
   } catch (err) {
     res.status(500).send(err);
   }
 });
-/*
-//Read By ID
-//http://localhost:8081/restaurant?id=60174acfcde1ab2e78a3a9b0
-app.get('/restaurant', async (req, res) => {
-  //const restaurants = await restaurantModel.find({_id: req.query.id});
-  //const restaurants = await restaurantModel.findById(req.query.id);
-  const restaurants = await restaurantModel.find({_id: req.query.id}).select("firstname lastname salary");
 
-  try {
-    res.send(restaurants);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-});
-
-//Search By First Name - PATH Parameter
-//http://localhost:8081/restaurants/firstname/pritesh
-app.get('/restaurants/firstname/:name', async (req, res) => {
+//Search By cuisine - PATH Parameter
+//http://localhost:8081/restaurants/cuisine/Japanese
+//http://localhost:3000/restaurants/cuisine/Bakery
+//http://localhost:3000/restaurants/cuisine/Italian
+app.get('/restaurants/cuisine/:name', async (req, res) => {
   const name = req.params.name
-  const restaurants = await restaurantModel.find({firstname : name});
-  //const restaurants = await restaurantModel.getRestaurantByFirstName(name)
+  const restaurants = await restaurantModel.find({cuisine : name});
+  //const restaurants = await restaurantModel.getRestaurantByCuisine(name)
   
   //Using Virtual Field Name
-  //console.log(restaurants[0].fullname)
+  //console.log(restaurants[0].cuisine)
   
   try {
     if(restaurants.length != 0){
@@ -57,47 +44,17 @@ app.get('/restaurants/firstname/:name', async (req, res) => {
   }
 });
 
-//Search By First Name OR Last Name
-//http://localhost:8081/restaurants/search?firstname=pritesh&lastname=patel
-app.get('/restaurants/search', async (req, res) => {
-  //console.log(req.query)
-  if(Object.keys(req.query).length != 2){
-    res.send(JSON.stringify({status:false, message: "Insufficient query parameter"}))
-  }else{
-    const fname = req.query.firstname
-    const lname = req.query.lastname
-    //{ $or: [{ name: "Rambo" }, { breed: "Pugg" }, { age: 2 }] },
-    //const restaurants = await restaurantModel.find({ $and: [{firstname : fname}, {lastname : lname}]});
-    const restaurants = await restaurantModel.find({ $or: [{firstname : fname}, {lastname : lname}]});
-    ///Use below query for AND condition
-    //const restaurants = await restaurantModel.find({firstname : fname, lastname : lname});
-
-    try {
-      if(restaurants.length != 0){
-        res.send(restaurants);
-      }else{
-        res.send(JSON.stringify({status:false, message: "No data found"}))
-      }
-    } catch (err) {
-      res.status(500).send(err);
-    }
-  }
-});
-
-
-//Search By salary > 1000
-//http://localhost:8081/restaurants/salary?value=1000
-app.get('/restaurants/salary', async (req, res) => {
-  //console.log(req.query)
+//http://localhost:8081/restaurant?sortBy=ASC
+//http://localhost:8081/restaurant?sortBy=DESC
+app.get('/restaurant', async (req, res) => {
   if(Object.keys(req.query).length != 1){
     res.send(JSON.stringify({status:false, message: "Insufficient query parameter"}))
   }else{
-    const salary = req.query.value
+    const sort = req.query.sortBy
   
     //const restaurants = await restaurantModel.find({salary : {$gte : salary}});
-    const restaurants = await restaurantModel.find({}).where("salary").gte(salary);
-    // <= 10000
-    //const restaurants = await restaurantModel.find({salary : {$lte : salary }});
+    //const restaurants = await restaurantModel.find({}).where("salary").gte(salary);
+    const restaurants = await restaurantModel.find({}).select("name city cuisine restaurant_id").sort({'restaurant_id' : sort});    ;
     
     try {
       if(restaurants.length != 0){
@@ -112,17 +69,17 @@ app.get('/restaurants/salary', async (req, res) => {
 });
 
 //Some more test queries
-//http://localhost:8081/restaurants/test
-app.get('/restaurants/test', async (req, res) => {
+//http://localhost:8081/restaurants/Delicatessen
+app.get('/restaurants/Delicatessen', async (req, res) => {
   try {
-    const restaurants = restaurantModel.
-                        find({})
-                        .where('lastname').equals('patel')
-                        .where('salary').gte(1000.00).lte(10000.00)
-                        .where('firstname').in(['pritesh', 'moksh'])
-                        .limit(10)
-                        .sort('-salary')
-                        .select('firstname lastname salary')
+    const restaurants = restaurantModel.find({})
+                        .where('cuisine').equals('delicatessen')
+                        .where('city').ne("Brooklyn")
+                        //.where('firstname').in(['pritesh', 'moksh'])
+                        //.limit(10)
+                        //.sort('-salary')
+                        .sort({'name' : 'asc'})
+                        .select('cuisine name city')//.ne("_id")
                         .exec((err, data) => {
                           if (err){
                               res.send(JSON.stringify({status:false, message: "No data found"}));
@@ -135,98 +92,22 @@ app.get('/restaurants/test', async (req, res) => {
     }
 });
 
+module.exports = app
+
 //Create New Record
 /*
     //Sample Input as JSON
-    //application/json as Body
-    {
-      "firstname":"Pritesh",
-      "lastname":"Patel",
-      "email":"p@p.com",
-      "gender":"Male",
-      "city":"Toronto",
-      "designation":"Senior Software Engineer",
-      "salary": 10000.50
+    //application/json as Body   
+    {"_id":
+      {"$oid":"60206fe446b7b747df24833c"},
+      "address":{
+        "building":"555",
+        "street":"Fontana Street",
+        "zipcode":null
+      },
+      "city":"Brooklyn",
+      "cuisine":"Japanese",
+      "name":"Wasabi Sushi",
+      "restaurant_id":"40398000"}
     }
-*//*
-//http://localhost:8081/restaurant
-app.post('/restaurant', async (req, res) => {
-  
-    const restaurant = new restaurantModel(req.body);
-    
-    try {
-      await restaurant.save((err) => {
-        if(err){
-          //Custome error handling
-          //console.log(err.errors['firstname'].message)
-          //console.log(err.errors['lastname'].message)
-          //console.log(err.errors['gender'].message)
-          //console.log(err.errors['salary'].message)
-          res.send(err)
-        }else{
-          res.send(restaurant);
-        }
-      });
-    } catch (err) {
-      res.status(500).send(err);
-    }
-  });
-
-//Update Record
-//http://localhost:8081/restaurant/60174acfcde1ab2e78a3a9b0
-app.patch('/restaurant/:id', async (req, res) => {
-  try {
-    const restaurant =  await restaurantModel.findOneAndUpdate({ _id: req.params.id}, req.body, {new: true})
-    //const restaurant =  await restaurantModel.findByIdAndUpdate(req.params.id, req.body, {new: true})
-    res.send(restaurant)
-  } catch (err) {
-    res.status(500).send(err)
-  }
-})
-
-//Delete Record by ID
-//http://localhost:8081/restaurant/5d1f6c3e4b0b88fb1d257237
-app.delete('/restaurant/:id', async (req, res) => {
-    try {
-      const restaurant = await restaurantModel.findByIdAndDelete(req.params.id)
-
-      if (!restaurant) 
-      {
-        res.status(404).send(JSON.stringify({status: false, message:"No item found"}))
-      }else{
-        res.status(200).send(JSON.stringify({status: true, message:"Record Deleted Successfully"}))
-      }
-    } catch (err) {
-      res.status(500).send(err)
-    }
-  })
-
-  //Delete Record using findOneAndDelete()
-//http://localhost:8081/restaurant/delete?emailid=5d1f6c3e4b0b88fb1d257237
-app.get('/restaurant/delete', async (req, res) => {
-  try {
-    const restaurant = await restaurantModel.findOneAndDelete({email: req.query.emailid})
-
-    if (!restaurant) 
-    {
-      res.status(404).send(JSON.stringify({status: false, message:"No item found"}))
-    }else{
-      //restaurant.remove() //Update for Mongoose v5.5.3 - remove() is now deprecated
-      res.status(200).send(JSON.stringify({status: true, message:"Record Deleted Successfully"}))
-    }
-  } catch (err) {
-    res.status(500).send(err)
-  }
-})
-module.exports = app
-
-//Insert Multiple Records
-/*
-restaurantModel.create(
-  [{"firstname":"Keriann","lastname":"Qualtro","email":"kqualtro3@mediafire.com","gender":"Female","city":"Ulricehamn","designation":"Nurse Practicioner","salary":"9288.95"},
-  {"firstname":"Bette","lastname":"Elston","email":"belston4@altervista.org","gender":"Female","city":"Xinhang","designation":"Staff Accountant III","salary":"3086.99"},
-  {"firstname":"Editha","lastname":"Feasby","email":"efeasby5@ovh.net","gender":"Female","city":"San Francisco","designation":"Mechanical Systems Engineer","salary":"1563.63"},
-  {"firstname":"Letizia","lastname":"Walrond","email":"lwalrond6@ibm.com","gender":"Male","city":"Ricardo Flores Magon","designation":"Research Associate","salary":"6329.05"},
-  {"firstname":"Molly","lastname":"MacTrustrie","email":"mmactrustrie7@adobe.com","gender":"Female","city":"Banjarejo","designation":"Quality Control Specialist","salary":"4059.61"}]
-)
 */

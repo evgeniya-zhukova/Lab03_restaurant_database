@@ -16,6 +16,8 @@ mongoose.connect('mongodb+srv://polosataya-koza:Ekiseleva2020@cluster0.f0kbr.azu
   process.exit();
 });
 
+app.use(restaurantRoutes);
+
 app.get('/', (req, res) => {
   res.send("<h1>Welcome to Restaurant application - Week04 Exercise</h1>");
 });
